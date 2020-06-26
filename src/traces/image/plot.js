@@ -82,34 +82,39 @@ module.exports = function plot(gd, plotinfo, cdimage, imageLayer) {
             return;
         }
 
-        // Draw each pixel
-        var canvas = document.createElement('canvas');
-        canvas.width = imageWidth;
-        canvas.height = imageHeight;
-        var context = canvas.getContext('2d');
+        // Create a new canvas and draw magnified pixel on it
+        function drawMagnifiedPixelOnCanvas() {
+            var canvas = document.createElement('canvas');
+            canvas.width = imageWidth;
+            canvas.height = imageHeight;
+            var context = canvas.getContext('2d');
 
-        var ipx = function(i) {return Lib.constrain(Math.round(xa.c2p(x0 + i * dx) - left), 0, imageWidth);};
-        var jpx = function(j) {return Lib.constrain(Math.round(ya.c2p(y0 + j * dy) - top), 0, imageHeight);};
+            var ipx = function(i) {return Lib.constrain(Math.round(xa.c2p(x0 + i * dx) - left), 0, imageWidth);};
+            var jpx = function(j) {return Lib.constrain(Math.round(ya.c2p(y0 + j * dy) - top), 0, imageHeight);};
 
-        var fmt = constants.colormodel[trace.colormodel].fmt;
-        var c;
-        for(i = 0; i < cd0.w; i++) {
-            var ipx0 = ipx(i); var ipx1 = ipx(i + 1);
-            if(ipx1 === ipx0 || isNaN(ipx1) || isNaN(ipx0)) continue;
-            for(var j = 0; j < cd0.h; j++) {
-                var jpx0 = jpx(j); var jpx1 = jpx(j + 1);
-                if(jpx1 === jpx0 || isNaN(jpx1) || isNaN(jpx0) || !z[j][i]) continue;
-                c = trace._scaler(z[j][i]);
-                if(c) {
-                    context.fillStyle = trace.colormodel + '(' + fmt(c).join(',') + ')';
-                } else {
-                    // Return a transparent pixel
-                    context.fillStyle = 'rgba(0,0,0,0)';
+            var fmt = constants.colormodel[trace.colormodel].fmt;
+            var c;
+            for(i = 0; i < cd0.w; i++) {
+                var ipx0 = ipx(i); var ipx1 = ipx(i + 1);
+                if(ipx1 === ipx0 || isNaN(ipx1) || isNaN(ipx0)) continue;
+                for(var j = 0; j < cd0.h; j++) {
+                    var jpx0 = jpx(j); var jpx1 = jpx(j + 1);
+                    if(jpx1 === jpx0 || isNaN(jpx1) || isNaN(jpx0) || !z[j][i]) continue;
+                    c = trace._scaler(z[j][i]);
+                    if(c) {
+                        context.fillStyle = trace.colormodel + '(' + fmt(c).join(',') + ')';
+                    } else {
+                        // Return a transparent pixel
+                        context.fillStyle = 'rgba(0,0,0,0)';
+                    }
+                    context.fillRect(ipx0, jpx0, ipx1 - ipx0, jpx1 - jpx0);
                 }
-                context.fillRect(ipx0, jpx0, ipx1 - ipx0, jpx1 - jpx0);
             }
+
+            return canvas;
         }
 
+        var canvas = drawMagnifiedPixelOnCanvas();
         var image3 = plotGroup.selectAll('image')
             .data(cd);
 
@@ -125,5 +130,11 @@ module.exports = function plot(gd, plotinfo, cdimage, imageLayer) {
             y: top,
             'xlink:href': canvas.toDataURL('image/png')
         });
+
+        // TODO: support additional smoothing options
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering
+        // http://phrogz.net/tmp/canvas_image_zoom.html
+        image3
+          .attr('style', 'image-rendering: optimizeSpeed; image-rendering: -o-crisp-edges; image-rendering: -webkit-optimize-contrast; image-rendering: optimize-contrast; image-rendering: crisp-edges; image-rendering: pixelated;');
     });
 };
