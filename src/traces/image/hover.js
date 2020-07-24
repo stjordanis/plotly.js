@@ -18,6 +18,8 @@ module.exports = function hoverPoints(pointData, xval, yval) {
     var xa = pointData.xa;
     var ya = pointData.ya;
 
+    return;
+
     // Return early if not on image
     if(Fx.inbox(xval - cd0.x0, xval - (cd0.x0 + cd0.w * trace.dx), 0) > 0 ||
             Fx.inbox(yval - cd0.y0, yval - (cd0.y0 + cd0.h * trace.dy), 0) > 0) {
