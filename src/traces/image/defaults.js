@@ -16,8 +16,12 @@ module.exports = function supplyDefaults(traceIn, traceOut) {
     function coerce(attr, dflt) {
         return Lib.coerce(traceIn, traceOut, attributes, attr, dflt);
     }
+    var source = coerce('source');
+    traceOut._isSourceEmpty = !source;
+
     var z = coerce('z');
-    if(z === undefined || !z.length || !z[0] || !z[0].length) {
+    traceOut._isZEmpty = (z === undefined || !z.length || !z[0] || !z[0].length);
+    if(traceOut._isZEmpty && traceOut._isSourceEmpty) {
         traceOut.visible = false;
         return;
     }

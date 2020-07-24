@@ -22,6 +22,16 @@ for(var i = 0; i < cm.length; i++) {
 }
 
 module.exports = extendFlat({
+    source: {
+        valType: 'string',
+        role: 'info',
+        editType: 'calc',
+        description: [
+            'Specifies the URL of the image to be used.',
+            'The URL must be accessible from the domain where the',
+            'plot code is run, and can be either relative or absolute.'
+        ].join(' ')
+    },
     z: {
         valType: 'data_array',
         role: 'info',

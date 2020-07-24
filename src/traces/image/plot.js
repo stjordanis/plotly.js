@@ -114,7 +114,14 @@ module.exports = function plot(gd, plotinfo, cdimage, imageLayer) {
             return canvas;
         }
 
-        var canvas = drawMagnifiedPixelOnCanvas();
+        var href;
+        if(!trace._isZEmpty) {
+            var canvas = drawMagnifiedPixelOnCanvas();
+            href = canvas.toDataURL('image/png');
+        } else if(!trace._isSourceEmpty) {
+            href = trace.source;
+        }
+
         var image3 = plotGroup.selectAll('image')
             .data(cd);
 
@@ -128,7 +135,7 @@ module.exports = function plot(gd, plotinfo, cdimage, imageLayer) {
             width: imageWidth,
             x: left,
             y: top,
-            'xlink:href': canvas.toDataURL('image/png')
+            'xlink:href': href
         });
 
         // TODO: support additional smoothing options
